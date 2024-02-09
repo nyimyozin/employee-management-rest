@@ -1,0 +1,119 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper
+    PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+    "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+
+<mapper
+	namespace="com.pita_b2.employee.rest.repository.EmployeeRepository">
+
+	<resultMap type="EmployeeModel" id="EmployeeModelResult">
+		<id column="employee_id" property="employeeId" />
+		<result column="employee_name" property="employeeName" />
+		<result column="employee_phone" property="employeePhone" />
+		<result column="employee_address" property="employeeAddress" />
+		<result column="employee_email" property="employeeEmail" />
+		<result column="employee_age" property="employeeAge" />
+		<result column="position_id" property="positionId" />
+		<result column="position_name" property="positionName" />
+		<result column="salary_range_start" property="salaryRangeStart" />
+		<result column="salary_range_end" property="salaryRangeEnd" />
+		<result column="description" property="description" />
+	</resultMap>
+
+	<sql id="employeeColumns">
+		employee_name, 
+		employee_phone, 
+		employee_address,
+		employee_email, 
+		employee_age
+	</sql>
+	<select id="selectAllData" resultMap="EmployeeModelResult">
+		SELECT 
+			e.employee_id,
+			<include refid="employeeColumns" />, 
+			e.position_id,
+			p.position_name, 
+			p.salary_range_start, 
+			p.salary_range_end , 
+			p.description
+		FROM 
+			employee e
+		JOIN 
+			position p 
+		ON 
+			e.position_id = p.position_id
+		ORDER BY
+			e.employee_id;
+	</select>
+	<insert id="employeeDataAdd" parameterType="EmployeeModel">
+		INSERT INTO 
+			employee (
+			<include refid="employeeColumns" />, 
+			position_id) 
+		VALUES (
+			#{employeeName}, 
+			#{employeePhone},
+			#{employeeAddress},
+			#{employeeEmail}, 
+			#{employeeAge}, 
+			#{positionId});
+	</insert>
+	<delete id="deleteEmployee" parameterType="int">
+		DELETE FROM 
+			employee
+		WHERE 
+			employee_id=#{employeeId};
+	</delete>
+	<select id="searchById" parameterType="int"
+		resultMap="EmployeeModelResult">
+		SELECT 
+			e.employee_id,
+			<include refid="employeeColumns" /> ,
+			e.position_id,
+			p.position_name, 
+			p.salary_range_start, 
+			p.salary_range_end, 
+			p.description
+		FROM 
+			employee e 
+		JOIN 
+			position p 
+		ON 
+			e.position_id = p.position_id 
+		WHERE 
+			e.employee_id = #{employee_id};
+	</select>
+	<select id="searchByName" parameterType="String"
+		resultMap="EmployeeModelResult">
+		SELECT 
+			e.employee_id, 
+			<include refid="employeeColumns" />, 
+			e.position_id, 
+			p.position_name, 
+			p.salary_range_start, 
+			p.salary_range_end, 
+			p.description
+		FROM 
+			employee e
+		JOIN 
+			position p 
+		ON 
+			e.position_id = p.position_id
+		WHERE 
+			e.employee_name 
+		LIKE CONCAT('%', #{employee_name}, '%');
+	</select>
+	<update id="updateProcess" parameterType="map">
+		UPDATE 
+			employee 
+		SET
+			employee_name = #{employeeModel.employeeName}, 
+			employee_phone = #{employeeModel.employeePhone}, 
+			employee_address = #{employeeModel.employeeAddress}, 
+			employee_email = #{employeeModel.employeeEmail},
+			employee_age = #{employeeModel.employeeAge}, 
+			position_id = #{employeeModel.positionId} 
+		WHERE 
+			employee_id = #{employeeId};
+	</update>
+</mapper>
